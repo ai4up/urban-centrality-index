@@ -1,1 +1,1 @@
-from uci import uci
+from uci.uci import uci
