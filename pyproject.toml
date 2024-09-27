@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "urban-centrality-index"
+version = "0.1.0"
+description = "Calculate Urban Centrality Index (UCI) as described in Pereira et al. (2013) [doi:10.1111/gean.12002]"
+authors = ["Florian Nachtigall <nachtigall@tu-berlin.de>"]
+readme = "README.md"
+packages = [{include = "uci"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^1.5.3"
+geopandas = "^0.13.2"
+networkx = "^3.1"
+numpy = "^1.23.0"
+scipy = "^1.12.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
