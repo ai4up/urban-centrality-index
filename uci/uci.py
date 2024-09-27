@@ -169,7 +169,7 @@ def _calc_spatial_link_dist_matrix(gdf):
     """
     G = _create_spatial_link_graph(gdf)
     shortest_paths = dict(nx.all_pairs_dijkstra_path_length(G, weight='weight'))
-    dis_matrix = pd.DataFrame(shortest_paths).to_numpy()
+    dis_matrix = pd.DataFrame(shortest_paths).sort_index(axis=1).sort_index(axis=0).to_numpy()
     dis_matrix += _calc_self_distance(gdf)
 
     return dis_matrix
