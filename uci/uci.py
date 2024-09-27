@@ -77,12 +77,7 @@ def uci(gdf, var_name, dist_type="euclidean", bootstrap_border=False):
     boundary_mask = gdf.intersects(boundary)
     sf_border = gdf[boundary_mask]
     n_border = len(sf_border)
-
-    # Calculate distance between border cells
-    if dist_type == 'euclidean':
-        distance_border = _get_euclidean_dist_matrix(sf_border)
-    else:
-        distance_border = distance[np.ix_(boundary_mask, boundary_mask)]
+    distance_border = distance[np.ix_(boundary_mask, boundary_mask)]
 
     # Determine max venables based on bootstrap or heuristic
     if bootstrap_border:
