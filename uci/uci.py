@@ -53,18 +53,18 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
     # Change projection to UTM (Web Mercator)
     gdf = gdf.to_crs(epsg=3857)
 
-    # Location Coefficient
+    # Calculate Location Coefficient
     var = gdf[var_name].fillna(0).values
     var_norm = _normalize_distribution(var)
     LC = _calc_location_coef(var_norm)
 
-    # Calculate distance matrix based on dist_type
+    # Calculate distance matrix
     if euclidean:
         distance = _calc_euclidean_dist_matrix(gdf)
     else:
         distance = _calc_spatial_link_dist_matrix(gdf)
 
-    # Spatial separation index (Venables)
+    # Calculate spatial separation index (Venables)
     V = _calc_venables(var_norm, distance)
     V_max = _estimate_max_venables(gdf, distance, bootstrap_border)
 
@@ -118,12 +118,12 @@ def _estimate_max_venables(gdf, distance, bootstrap_border):
     # Determine max venables based on bootstrap or heuristic
     if bootstrap_border:
         # Try different border values (at most ~50 times) and find the max venables
-        V_max = np.max([_calc_venables(_simulate_border_values(n_border, n), distance_border) for n in range(2, n_border, (n_border // 50) + 1)])
+        v = np.max([_calc_venables(_simulate_border_values(n_border, n), distance_border) for n in range(2, n_border, (n_border // 50) + 1)])
     else:
         some_border_values = np.full(n_border, 1 / n_border)
-        V_max = _calc_venables(some_border_values, distance_border)
+        v = _calc_venables(some_border_values, distance_border)
 
-    return V_max
+    return v
 
 
 def _calc_euclidean_dist_matrix(gdf):
