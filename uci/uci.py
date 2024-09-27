@@ -11,6 +11,8 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
     The UCI quantifies the degree of spatial organization of a city or region on a continuous scale from 0 to 1,
     where values closer to 0 indicate a more polycentric pattern and values closer to 1 indicate a more monocentric urban form.
 
+    Implementation based on the original R code by Pereira et al. available at: https://github.com/ipeaGIT/uci
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
