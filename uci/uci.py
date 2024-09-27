@@ -30,10 +30,11 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
         more accurate UCI estimates despite being computationally more expensive.
 
     bootstrap_border : bool, optional
-        If `True`, the function uses a bootstrap approach to simulate random distributions of activities along the border
-        of the study area to find the maximum value of the Venables spatial separation index. Defaults to `False`,
-        where a heuristic approach is used that assumes maximum spatial separation occurs with evenly distributed
-        activities along the border.
+        If 'False' (default), a heuristic approach proposed by Pereira et al. (2013) is used to estimate the maximum spatial
+        separation index, which assumes that it takes the maximum value if activities are homogeneously distributed along the
+        boundary of the study area.
+        If `True`, the spatial separation index is calculated for different value distributions along the boundary using a
+        bootstrapping approach and the maximum value is selected.
 
     Returns
     -------
@@ -65,21 +66,7 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
 
     # Spatial separation index (Venables)
     V = _calc_venables(var_norm, distance)
-
-    # Identify border cells
-    boundary = gdf.unary_union.boundary
-    boundary_mask = gdf.intersects(boundary)
-    sf_border = gdf[boundary_mask]
-    n_border = len(sf_border)
-    distance_border = distance[np.ix_(boundary_mask, boundary_mask)]
-
-    # Determine max venables based on bootstrap or heuristic
-    if bootstrap_border:
-        # Try different border values (at most ~50 times) and find the max venables
-        V_max = np.max([_calc_venables(_simulate_border_values(n_border, n), distance_border) for n in range(2, n_border, (n_border // 50) + 1)])
-    else:
-        some_border_values = np.full(n_border, 1 / n_border)
-        V_max = _calc_venables(some_border_values, distance_border)
+    V_max = _estimate_max_venables(gdf, distance, bootstrap_border)
 
     # Calculate UCI
     proximity_index = 1 - (V / V_max)
@@ -115,6 +102,28 @@ def _calc_venables(b, distance):
     """
     v = np.dot(np.dot(b.T, distance), b)
     return v
+
+
+def _estimate_max_venables(gdf, distance, bootstrap_border):
+    """
+    Estimate maximum Venables spatial separation index using heuristic approach.
+    """
+    # Identify border cells
+    boundary = gdf.unary_union.boundary
+    boundary_mask = gdf.intersects(boundary)
+    sf_border = gdf[boundary_mask]
+    n_border = len(sf_border)
+    distance_border = distance[np.ix_(boundary_mask, boundary_mask)]
+
+    # Determine max venables based on bootstrap or heuristic
+    if bootstrap_border:
+        # Try different border values (at most ~50 times) and find the max venables
+        V_max = np.max([_calc_venables(_simulate_border_values(n_border, n), distance_border) for n in range(2, n_border, (n_border // 50) + 1)])
+    else:
+        some_border_values = np.full(n_border, 1 / n_border)
+        V_max = _calc_venables(some_border_values, distance_border)
+
+    return V_max
 
 
 def _calc_euclidean_dist_matrix(gdf):
