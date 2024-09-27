@@ -169,7 +169,6 @@ def _get_spatial_link_dist_matrix(gdf):
     """
     Calculate a distance matrix using the shortest path along the geometries of a GeoPandas GeoDataFrame, following the connections between them (i.e., taking into account the actual shapes and paths)
     """
-
     G = _create_spatial_link_graph(gdf)
     shortest_paths = dict(nx.all_pairs_dijkstra_path_length(G, weight='weight'))
     dis_matrix = pd.DataFrame(shortest_paths).to_numpy()
@@ -195,7 +194,9 @@ def _simulate_border_values(length, n):
 
 
 def _create_weight_vector(length, positions):
-    b = np.zeros(length)  # Initialize vector of zeros
-    b[positions] = 1  # Set specific positions to 1
-    b[b == 1] /= np.sum(b)  # Normalize values where b == 1
-    return b
+    """
+    Create a normalized vector of specified length, where values at positions sum up to 1.
+    """
+    b = np.zeros(length)
+    b[positions] = 1
+    return b / np.sum(b)
