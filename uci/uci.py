@@ -5,34 +5,32 @@ import pandas as pd
 from scipy.spatial import distance_matrix
 
 
-def uci(gdf, var_name, dist_type="euclidean", bootstrap_border=False):
+def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
     """
-    Calculate the Urban Centrality Index (UCI) as described in Pereira et al. (2013) \doi{10.1111/gean.12002}. 
-    The UCI quantifies the degree of spatial organization of a city or region on a continuous scale from 0 to 1, 
+    Calculate the Urban Centrality Index (UCI) as described in Pereira et al. (2013) \doi{10.1111/gean.12002}.
+    The UCI quantifies the degree of spatial organization of a city or region on a continuous scale from 0 to 1,
     where values closer to 0 indicate a more polycentric pattern and values closer to 1 indicate a more monocentric urban form.
 
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
         A GeoDataFrame containing the study area as polygon geometries.
-        
+
     var_name : str
-        The name of the column in `gdf` that contains the number of activities, opportunities, resources, 
+        The name of the column in `gdf` that contains the number of activities, opportunities, resources,
         or services to be considered when calculating urban centrality levels. `NaN` values are treated as `0`.
 
-    dist_type : str, optional
-        A string indicating the type of distance calculations to use. 
-        Acceptable values are:
-        - "euclidean" (default): calculates Euclidean distances.
-        - "spatial_link": calculates distances based on spatial neighbor links.
-        
-        It is recommended to use "spatial_link" for areas with concave shapes (e.g., bays), as it can provide 
+    euclidean : bool, optional
+        If `True` (default), calculates Euclidean distances between spatial units.
+        If `False`, calculates distances based on spatial neighbor links.
+
+        It is recommended to use "euclidean=False" for areas with concave shapes (e.g., bays), as it can provide
         more accurate UCI estimates despite being computationally more expensive.
 
     bootstrap_border : bool, optional
-        If `True`, the function uses a bootstrap approach to simulate random distributions of activities along the border 
-        of the study area to find the maximum value of the Venables spatial separation index. Defaults to `False`, 
-        where a heuristic approach is used that assumes maximum spatial separation occurs with evenly distributed 
+        If `True`, the function uses a bootstrap approach to simulate random distributions of activities along the border
+        of the study area to find the maximum value of the Venables spatial separation index. Defaults to `False`,
+        where a heuristic approach is used that assumes maximum spatial separation occurs with evenly distributed
         activities along the border.
 
     Returns
@@ -44,11 +42,7 @@ def uci(gdf, var_name, dist_type="euclidean", bootstrap_border=False):
         - 'spatial_separation_ratio': The proximity index based on spatial separation.
         - 'spatial_separation': The observed spatial separation index (Venables).
         - 'spatial_separation_max': The maximum spatial separation index found.
-    
-    Raises
-    ------
-    ValueError
-        If `dist_type` is not one of the acceptable values ("euclidean" or "spatial_link").
+
     """
     # Check inputs
     _assert_var_name(gdf, var_name)
@@ -62,12 +56,10 @@ def uci(gdf, var_name, dist_type="euclidean", bootstrap_border=False):
     LC = _location_coef(var_norm)
 
     # Calculate distance matrix based on dist_type
-    if dist_type == 'euclidean':
+    if euclidean:
         distance = _get_euclidean_dist_matrix(gdf)
-    elif dist_type == 'spatial_link':
-        distance = _get_spatial_link_dist_matrix(gdf)
     else:
-        raise ValueError("dist_type must be either 'spatial_link' or 'euclidean'")
+        distance = _get_spatial_link_dist_matrix(gdf)
 
     # Spatial separation index (Venables)
     v_observed = venables(var_norm, distance)
@@ -133,12 +125,12 @@ def _get_euclidean_dist_matrix(gdf):
     distance += _calc_self_distance(gdf)
 
     return distance
-    
+
 
 def _calc_self_distance(gdf):
     areas = gdf.area.values
     self_distance = np.diag(np.sqrt(areas / np.pi))
-    
+
     return self_distance
 
 
