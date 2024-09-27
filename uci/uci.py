@@ -69,7 +69,7 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
     V_max = _estimate_max_venables(gdf, distance, bootstrap_border)
 
     # Calculate UCI
-    proximity_index = 1 - (V / V_max)
+    proximity_index = 1 - (V / max(V, V_max))
     UCI = LC * proximity_index
 
     return pd.Series({
