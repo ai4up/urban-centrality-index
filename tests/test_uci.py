@@ -30,6 +30,7 @@ class TestUCIModule(unittest.TestCase):
         cls.gdf_extrem_poly.loc[[1, 3, 4, 5, 7], 'activities'] = 0  # Keep only values at the corner
         cls.gdf_convex = cls.gdf.drop([7])  # Slightly U-shaped geometry (dropped spatial unit had no activity)
         cls.gdf_convex_poly = cls.gdf.drop([4, 7])  # U-shaped geometry (more polycentric activity distribution)
+        cls.gdf_isolated = cls.gdf.drop([4, 5, 7])  # Isolated spatial unit
 
 
     def test_location_coef(self):
@@ -119,6 +120,17 @@ class TestUCIModule(unittest.TestCase):
         result = uci(self.gdf_extrem_poly, 'activities', euclidean=False)
 
         self.assertEqual(result['UCI'], 0)
+
+
+    def test_uci_spatial_link_isolated(self):
+        """
+        Handle edge case of isolated spatial units for which no spatial neighbor link exists.
+        """
+        result = uci(self.gdf_isolated, 'activities', euclidean=False)
+
+        np.testing.assert_equal(result['UCI'], np.nan)
+        np.testing.assert_equal(result['proximity_index'], np.nan)
+        self.assertAlmostEqual(result['location_coef'], 0.3809523, places=5)
 
 
     @patch('uci.uci._calc_venables')
