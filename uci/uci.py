@@ -55,16 +55,16 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
     # Location Coefficient
     var = gdf[var_name].fillna(0).values
     var_norm = _normalize_distribution(var)
-    LC = _location_coef(var_norm)
+    LC = _calc_location_coef(var_norm)
 
     # Calculate distance matrix based on dist_type
     if euclidean:
-        distance = _get_euclidean_dist_matrix(gdf)
+        distance = _calc_euclidean_dist_matrix(gdf)
     else:
-        distance = _get_spatial_link_dist_matrix(gdf)
+        distance = _calc_spatial_link_dist_matrix(gdf)
 
     # Spatial separation index (Venables)
-    v_observed = venables(var_norm, distance)
+    V = _calc_venables(var_norm, distance)
 
     # Identify border cells
     boundary = gdf.unary_union.boundary
@@ -76,21 +76,21 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
     # Determine max venables based on bootstrap or heuristic
     if bootstrap_border:
         # Try different border values (at most ~50 times) and find the max venables
-        max_venables = np.max([venables(_simulate_border_values(n_border, n), distance_border) for n in range(2, n_border, (n_border // 50) + 1)])
+        V_max = np.max([_calc_venables(_simulate_border_values(n_border, n), distance_border) for n in range(2, n_border, (n_border // 50) + 1)])
     else:
         some_border_values = np.full(n_border, 1 / n_border)
-        max_venables = venables(some_border_values, distance_border)
+        V_max = _calc_venables(some_border_values, distance_border)
 
     # Calculate UCI
-    proximity_index = 1 - (v_observed / max_venables)
+    proximity_index = 1 - (V / V_max)
     UCI = LC * proximity_index
 
     return pd.Series({
         'UCI': UCI,
         'location_coef': LC,
-        'spatial_separation_ratio': proximity_index,
-        'spatial_separation': v_observed,
-        'spatial_separation_max': max_venables
+        'proximity_index': proximity_index,
+        'spatial_separation': V,
+        'spatial_separation_max': V_max
     })
 
 
@@ -102,14 +102,14 @@ def _assert_var_name(gdf, var_name):
     assert var_name in gdf.columns, f"Variable '{var_name}' must be in the GeoDataFrame."
 
 
-def _location_coef(x):
+def _calc_location_coef(x):
     """
     Calculate Location Coefficient (LC).
     """
     return np.sum(np.abs(x - (1 / len(x)))) / 2
 
 
-def venables(b, distance):
+def _calc_venables(b, distance):
     """
     Calculate the Venables spatial separation index.
     """
@@ -117,7 +117,7 @@ def venables(b, distance):
     return v
 
 
-def _get_euclidean_dist_matrix(gdf):
+def _calc_euclidean_dist_matrix(gdf):
     """
     Calculate the Euclidean distance matrix.
     """
@@ -154,7 +154,7 @@ def _create_spatial_link_graph(gdf):
     return G
 
 
-def _get_spatial_link_dist_matrix(gdf):
+def _calc_spatial_link_dist_matrix(gdf):
     """
     Calculate a distance matrix using the shortest path along the geometries of a GeoPandas GeoDataFrame, following the connections between them (i.e., taking into account the actual shapes and paths)
     """
