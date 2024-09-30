@@ -131,3 +131,11 @@ class TestUCIModule(unittest.TestCase):
         np.testing.assert_equal(result['UCI'], np.nan)
         np.testing.assert_equal(result['proximity_index'], np.nan)
         self.assertAlmostEqual(result['location_coef'], 0.3809523, places=5)
+
+
+    def test_bootstrap_border(self):
+
+        result = uci(self.gdf, 'activities')
+        result_bootstrap = uci(self.gdf, 'activities', bootstrap_border=True)
+
+        self.assertGreater(result_bootstrap['spatial_separation_max'], result['spatial_separation_max'])  # Bootstrapping should in most cases increase the maximum estimate of the spatial separation index

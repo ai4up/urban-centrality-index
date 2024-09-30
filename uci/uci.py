@@ -186,6 +186,7 @@ def _simulate_border_values(length, n):
     """
     Simulate equal value distributions along random subset of the border.
     """
+    np.random.seed(0)
     positions = np.random.choice(range(length), size=n)
     values = _create_weight_vector(length, positions)
     return values
