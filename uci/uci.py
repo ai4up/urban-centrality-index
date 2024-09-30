@@ -5,7 +5,12 @@ import pandas as pd
 from scipy.spatial import distance_matrix
 
 
-def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
+def uci(
+    gdf: gpd.GeoDataFrame,
+    var_name: str,
+    euclidean: bool = True,
+    bootstrap_border: bool = False
+) -> pd.Series:
     """
     Calculate the Urban Centrality Index (UCI) as described in Pereira et al. (2013) \doi{10.1111/gean.12002}.
     The UCI quantifies the degree of spatial organization of a city or region on a continuous scale from 0 to 1,
@@ -38,7 +43,7 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
 
     Returns
     -------
-    pandas.Series
+    pd.Series
         A Series containing the following values:
         - 'UCI': The calculated Urban Centrality Index.
         - 'location_coef': The calculated location coefficient.
@@ -81,7 +86,7 @@ def uci(gdf, var_name, euclidean=True, bootstrap_border=False):
     })
 
 
-def _assert_var_name(gdf, var_name):
+def _assert_var_name(gdf: gpd.GeoDataFrame, var_name: str) -> None:
     """
     Check if the variable name is in the GeoDataFrame.
     """
@@ -89,14 +94,14 @@ def _assert_var_name(gdf, var_name):
     assert var_name in gdf.columns, f"Variable '{var_name}' must be in the GeoDataFrame."
 
 
-def _calc_location_coef(x):
+def _calc_location_coef(x: np.ndarray) -> float:
     """
     Calculate Location Coefficient (LC).
     """
     return np.sum(np.abs(x - (1 / len(x)))) / 2
 
 
-def _calc_venables(b, distance):
+def _calc_venables(b: np.ndarray, distance: np.ndarray) -> float:
     """
     Calculate the Venables spatial separation index.
     """
@@ -104,7 +109,11 @@ def _calc_venables(b, distance):
     return v
 
 
-def _estimate_max_venables(gdf, distance, bootstrap_border):
+def _estimate_max_venables(
+    gdf: gpd.GeoDataFrame,
+    distance: np.ndarray,
+    bootstrap_border: bool
+) -> float:
     """
     Estimate maximum Venables spatial separation index using heuristic approach.
     """
@@ -117,8 +126,10 @@ def _estimate_max_venables(gdf, distance, bootstrap_border):
 
     # Determine max venables based on bootstrap or heuristic
     if bootstrap_border:
-        # Try different border values (at most ~50 times) and find the max venables
-        v = np.max([_calc_venables(_simulate_border_values(n_border, n), distance_border) for n in range(2, n_border, (n_border // 50) + 1)])
+        v = np.max([
+            _calc_venables(_simulate_border_values(n_border, n), distance_border)
+            for n in range(2, n_border, (n_border // 50) + 1)
+        ])
     else:
         some_border_values = np.full(n_border, 1 / n_border)
         v = _calc_venables(some_border_values, distance_border)
@@ -126,7 +137,7 @@ def _estimate_max_venables(gdf, distance, bootstrap_border):
     return v
 
 
-def _calc_euclidean_dist_matrix(gdf):
+def _calc_euclidean_dist_matrix(gdf: gpd.GeoDataFrame) -> np.ndarray:
     """
     Calculate the Euclidean distance matrix.
     """
@@ -138,22 +149,28 @@ def _calc_euclidean_dist_matrix(gdf):
     return distance
 
 
-def _calc_self_distance(gdf):
+def _calc_self_distance(gdf: gpd.GeoDataFrame) -> np.ndarray:
+    """
+    Calculate the self-distance (within a spatial unit) based on the unit's area.
+    """
     areas = gdf.area.values
     self_distance = np.diag(np.sqrt(areas / np.pi))
 
     return self_distance
 
 
-def _create_spatial_link_graph(gdf):
-    # Create empty graph
+def _create_spatial_link_graph(gdf: gpd.GeoDataFrame) -> nx.Graph:
+    """
+    Create a graph of connected spatial units, where nodes represent the centroids of units
+    and edges represent the distance between connected units.
+    """
     G = nx.Graph()
 
     # Add nodes
     for idx in gdf.index:
         G.add_node(idx)
 
-    # Add edges between on intersecting geometries
+    # Add edges between intersecting geometries
     for i, geom1 in gdf.geometry.items():
         for j, geom2 in gdf.geometry.items():
             if i != j and geom1.intersects(geom2):
@@ -163,7 +180,7 @@ def _create_spatial_link_graph(gdf):
     return G
 
 
-def _calc_spatial_link_dist_matrix(gdf):
+def _calc_spatial_link_dist_matrix(gdf: gpd.GeoDataFrame) -> np.ndarray:
     """
     Calculate a distance matrix using the shortest path along the geometries of a GeoPandas GeoDataFrame, following the connections between them (i.e., taking into account the actual shapes and paths)
     """
@@ -175,16 +192,16 @@ def _calc_spatial_link_dist_matrix(gdf):
     return dis_matrix
 
 
-def _normalize_distribution(vec):
+def _normalize_distribution(vec: np.ndarray) -> np.ndarray:
     """
     Normalize the distribution of a variable.
     """
     return vec / np.sum(vec)
 
 
-def _simulate_border_values(length, n):
+def _simulate_border_values(length: int, n: int) -> np.ndarray:
     """
-    Simulate equal value distributions along random subset of the border.
+    Simulate equal value distributions along a random subset of the border.
     """
     np.random.seed(0)
     positions = np.random.choice(range(length), size=n)
@@ -192,7 +209,7 @@ def _simulate_border_values(length, n):
     return values
 
 
-def _create_weight_vector(length, positions):
+def _create_weight_vector(length: int, positions: np.ndarray) -> np.ndarray:
     """
     Create a normalized vector of specified length, where values at positions sum up to 1.
     """
