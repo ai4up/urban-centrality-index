@@ -2,6 +2,8 @@
 
 Calculate Urban Centrality Index (UCI) as described in [Pereira et al. (2013)](https://www.doi.org/10.1111/gean.12002).
 
+The UCI quantifies the spatial clustering of a city or region based on the distribution of a chosen dimension, such as employment, population, or other points of interest. The index is measured on a continuous scale from 0 to 1, where values closer to 0 indicate a more polycentric pattern, and values near 1 suggest a more monocentric urban structure.
+
 The Python implementation is based on the R package [uci](https://github.com/ipeaGIT/uci) by Pereira et al.
 
 
