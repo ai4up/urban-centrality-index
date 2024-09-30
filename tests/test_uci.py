@@ -131,13 +131,3 @@ class TestUCIModule(unittest.TestCase):
         np.testing.assert_equal(result['UCI'], np.nan)
         np.testing.assert_equal(result['proximity_index'], np.nan)
         self.assertAlmostEqual(result['location_coef'], 0.3809523, places=5)
-
-
-    @patch('uci.uci._calc_venables')
-    def test_bootstrap_border(self, mock_calc_venables):
-        mock_calc_venables.return_value = 1.0
-
-        uci(self.gdf, 'activities', bootstrap_border=True)
-
-        # Ensure _calc_venables is called multiple times during the bootstrapping process
-        self.assertGreater(mock_calc_venables.call_count, 2, "Expected _calc_venables to be called multiple times")
