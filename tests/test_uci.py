@@ -140,4 +140,4 @@ class TestUCIModule(unittest.TestCase):
         uci(self.gdf, 'activities', bootstrap_border=True)
 
         # Ensure _calc_venables is called multiple times during the bootstrapping process
-        self.assertGreater(mock_calc_venables.call_count, 1, "Expected _calc_venables to be called multiple times")
+        self.assertGreater(mock_calc_venables.call_count, 2, "Expected _calc_venables to be called multiple times")
