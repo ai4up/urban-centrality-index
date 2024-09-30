@@ -1,5 +1,10 @@
 # Urban Centrality Index (UCI)
 
+[![codecov](https://codecov.io/github/ai4up/urban-centrality-index/graph/badge.svg?token=ISDX6LKXUQ)](https://codecov.io/github/ai4up/urban-centrality-index)
+[![DOI](https://img.shields.io/badge/DOI-10.1111/gean.12002-blue)](https://doi.org/10.1111/gean.12002)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+
+
 Calculate Urban Centrality Index (UCI) as described in [Pereira et al. (2013)](https://www.doi.org/10.1111/gean.12002).
 
 The UCI quantifies the spatial clustering of a city or region based on the distribution of a chosen dimension, such as employment, population, or other points of interest. The index is measured on a continuous scale from 0 to 1, where values closer to 0 indicate a more polycentric pattern, and values near 1 suggest a more monocentric urban structure.
