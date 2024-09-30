@@ -4,7 +4,7 @@ Calculate Urban Centrality Index (UCI) as described in [Pereira et al. (2013)](h
 
 The UCI quantifies the spatial clustering of a city or region based on the distribution of a chosen dimension, such as employment, population, or other points of interest. The index is measured on a continuous scale from 0 to 1, where values closer to 0 indicate a more polycentric pattern, and values near 1 suggest a more monocentric urban structure.
 
-The Python implementation is based on the R package [uci](https://github.com/ipeaGIT/uci) by Pereira et al.
+The Python implementation is based on the `R` package [uci](https://github.com/ipeaGIT/uci) by Pereira et al.
 
 
 ## Install
@@ -25,6 +25,7 @@ spatial_separation_max         179.015
 dtype: float64
 ```
 
+
 ## Development
 Build from source using [poetry](https://python-poetry.org/):
 ```
@@ -33,9 +34,14 @@ pip install dist/urban_centrality_index-*.whl
 ```
 
 
+## Documentation
+
+For more information of how the index is calculated, see `R` [docs](https://ipeagit.github.io/uci/articles/uci.html).
+
+
 ## Citation
 
- The original R package [uci](https://github.com/ipeaGIT/uci) is developed by a team at the Institute for Applied Economic Research (Ipea), Brazil. If you use this package in research publications, please cite it as:
+ The original `R` package [uci](https://github.com/ipeaGIT/uci) is developed by a team at the Institute for Applied Economic Research (Ipea), Brazil. If you use this package in research publications, please cite it as:
 
 * Pereira, R. H. M., Nadalin, V., Monasterio, L., & Albuquerque, P. H. (2013). **Urban centrality: a simple index**. *Geographical analysis*, 45(1), 77-89. [https://www.doi.org/10.1111/gean.12002](https://www.doi.org/10.1111/gean.12002)
 
