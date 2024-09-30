@@ -31,3 +31,26 @@ Build from source using [poetry](https://python-poetry.org/):
 poetry build
 pip install dist/urban_centrality_index-*.whl
 ```
+
+
+## Citation
+
+ The original R package [uci](https://github.com/ipeaGIT/uci) is developed by a team at the Institute for Applied Economic Research (Ipea), Brazil. If you use this package in research publications, please cite it as:
+
+* Pereira, R. H. M., Nadalin, V., Monasterio, L., & Albuquerque, P. H. (2013). **Urban centrality: a simple index**. *Geographical analysis*, 45(1), 77-89. [https://www.doi.org/10.1111/gean.12002](https://www.doi.org/10.1111/gean.12002)
+
+
+BibTeX:
+```
+@article{pereira2013urbancentrality,
+  title = {Urban {{Centrality}}: {{A Simple Index}}},
+  author = {Pereira, Rafael H. M. and Nadalin, Vanessa and Monasterio, Leonardo and Albuquerque, Pedro H. M.},
+  year = {2013},
+  journal = {Geographical Analysis},
+  volume = {45},
+  number = {1},
+  pages = {77--89},
+  issn = {1538-4632},
+  doi = {10.1111/gean.12002}
+}
+```
